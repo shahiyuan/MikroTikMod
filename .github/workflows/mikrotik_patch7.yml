@@ -37,8 +37,8 @@ jobs:
           CUSTOM_LICENSE_PUBLIC_KEY: ${{ secrets.CUSTOM_LICENSE_PUBLIC_KEY }}
           CUSTOM_NPK_SIGN_PRIVATE_KEY: ${{ secrets.CUSTOM_NPK_SIGN_PRIVATE_KEY }}
           CUSTOM_NPK_SIGN_PUBLIC_KEY: ${{ secrets.CUSTOM_NPK_SIGN_PUBLIC_KEY }}
-          MIKRO_UPGRADE_URL: "upgrade.mikrotik.ltd"
-          CUSTOM_UPGRADE_URL: "upgrade1.hang.edu.kg"
+          MIKRO_UPGRADE_URL: ${{ secrets.MIKRO_UPGRADE_URL }}
+          CUSTOM_UPGRADE_URL: ${{ secrets.CUSTOM_UPGRADE_URL }}
           VERSION: ${{ inputs.version }}
           ARCH: 'arm64'
         run: |
