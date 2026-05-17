@@ -80,10 +80,16 @@ jobs:
 
           echo "6 处理 wifi-qcom 驱动替换..."
           WIFI_FILE="./all_packages-${ARCH}/wifi-qcom-${VERSION}-${ARCH}.npk"
+          WIFIBE_FILE="./all_packages-${ARCH}/wifi-qcom-be-${VERSION}-${ARCH}.npk"
+          WIRE_FILE="./all_packages-${ARCH}/wireless-${VERSION}-${ARCH}.npk"
           WIFI_FILE_X="./all_packages-${ARCH}/wifi-qcom-${VERSION}-${ARCH}-X.npk"
           WIFI_FILE_R="./all_packages-${ARCH}/wifi-qcom-${VERSION}-${ARCH}-R.npk"
           if [ -f "$WIFI_FILE" ]; then
               sudo -E python3 roswifi.py -i "$WIFI_FILE" -b ./bdwlanX ./bdwlanR -o "$WIFI_FILE_X" "$WIFI_FILE_R"
+              sudo rm -f "$WIFI_FILE"
+              sudo rm -f "$WIRE_FILE"
+              sudo rm -f "$WIFIBE_FILE"
+              
           fi
 
           echo "7 打包 option (arm64)..."
