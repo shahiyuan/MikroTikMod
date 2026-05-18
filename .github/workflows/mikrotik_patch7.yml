@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y zip unzip wget curl squashfs-tools
-          pip install pefile
+          sudo pip install pefile
 
       - name: 下载、Patch主包
         env: 
@@ -130,6 +130,15 @@ jobs:
           sudo rm -rf ./all_packages-${ARCH}
           sudo rm all_packages-${ARCH}-${VERSION}.zip
 
+      - name: 安装基础依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip unzip wget curl squashfs-tools python3-pip
+          # 使用 sudo 确保 pefile 安装到全局/root 环境中，防止后面的 sudo -E python3 找不到模块
+          sudo pip install pefile
+
+      # ... 中间省略主包处理步骤 ...
+
       - name: 下载并 Patch Netinstall 工具
         env:
           MIKRO_NPK_SIGN_PUBLIC_KEY: ${{ secrets.NEW_MIKRO_NPK_SIGN_PUBLIC_KEY }}
@@ -146,11 +155,21 @@ jobs:
 
           echo "2. 解压并补丁 Windows 版本 (netinstall.exe)..."
           sudo unzip -q netinstall.zip
+          if [ ! -f "./netinstall.exe" ]; then
+              echo "错误: 未找到 netinstall.exe，解压可能失败！"
+              exit 1
+          fi
+          # 执行补丁
           sudo -E python3 patch_test.py netinstall netinstall.exe
           sudo zip -q netinstall-${VERSION}.zip ./netinstall.exe
 
           echo "3. 解压并补丁 Linux 版本 (netinstall-cli)..."
           sudo tar -xzf netinstall.tar.gz
+          if [ ! -f "./netinstall-cli" ]; then
+              echo "错误: 未找到 netinstall-cli，解压可能失败！"
+              exit 1
+          fi
+          # 执行补丁
           sudo -E python3 patch_test.py netinstall netinstall-cli
           sudo tar -czf netinstall-${VERSION}.tar.gz ./netinstall-cli
 
