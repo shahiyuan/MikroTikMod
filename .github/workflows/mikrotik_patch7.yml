@@ -30,7 +30,7 @@ jobs:
           sudo apt-get install -y zip unzip wget curl squashfs-tools
 
       - name: 下载、Patch主包
-        env: # 修复 1：补上了漏掉的 env: 关键字
+        env: 
           MIKRO_NPK_SIGN_PUBLIC_KEY: ${{ secrets.MIKRO_NPK_SIGN_PUBLIC_KEY }}
           MIKRO_LICENSE_PUBLIC_KEY: ${{ secrets.MIKRO_LICENSE_PUBLIC_KEY }}
           CUSTOM_LICENSE_PRIVATE_KEY: ${{ secrets.CUSTOM_LICENSE_PRIVATE_KEY }}
@@ -61,14 +61,12 @@ jobs:
           ARCH: 'arm64'
         run: |
           echo "3. 下载All Packages..."
-          # 修复 2：将全角双引号 “” 修正为标准英文半角双引号 ""
           curl -L -# -O "https://download.mikrotik.com/routeros/$VERSION/all_packages-arm64-$VERSION.zip"
 
           echo "4. 创建目录并解压"
           sudo mkdir -p ./all_packages-${ARCH}
           sudo unzip -q all_packages-${ARCH}-${VERSION}.zip -d ./all_packages-${ARCH}/
           
-          # 修复 4：补回删除原版主包的逻辑，避免未 Patch 的原版主包混入全量 NPK 压缩包中
           MAIN_NPK_IN_ZIP="./all_packages-${ARCH}/routeros-${VERSION}-${ARCH}.npk"
           if [ -f "$MAIN_NPK_IN_ZIP" ]; then
               sudo rm -f "$MAIN_NPK_IN_ZIP"
@@ -119,7 +117,6 @@ jobs:
               option \
               ./option.sfs \
               -desc="busybox for arm64"
-          # 修复 3：移除了原本在这里由于删除 if 判断而遗留的无主 fi
 
           echo "8. 重新生成全量压缩包..."
           cd ./all_packages-${ARCH}
