@@ -28,6 +28,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y zip unzip wget curl squashfs-tools
+          pip install pefile
 
       - name: 下载、Patch主包
         env: 
