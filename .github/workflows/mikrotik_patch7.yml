@@ -1,4 +1,4 @@
-name: MikroTik RouterOS test
+name: MikroTik RouterOS V7 Release
 
 on:
   workflow_dispatch:
