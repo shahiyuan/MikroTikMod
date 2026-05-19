@@ -98,7 +98,7 @@ jobs:
           
           sudo mkdir -p ./option-root/bin/
           
-          # 动态抓取最新的 Alpha linux-arm64 版本的直链 (过滤掉 freebsd 和 compatible 等版本)
+          # 动态抓取最新的 Alpha linux-arm64 版本的直链
           DOWNLOAD_URL=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/tags/Prerelease-Alpha | grep -o 'https://[^"]*mihomo-linux-arm64-alpha-[a-z0-9]*\.gz' | head -n 1)
           
           if [ -z "$DOWNLOAD_URL" ]; then
@@ -108,11 +108,14 @@ jobs:
           
           echo "获取到的下载链接: $DOWNLOAD_URL"
           
-          # 下载并解压到目标目录
-          sudo wget -O mihomo.gz -nv "$DOWNLOAD_URL"
-          sudo gunzip -c mihomo.gz > ./option-root/bin/mihomo
+          # 下载压缩包
+          wget -O mihomo.gz -nv "$DOWNLOAD_URL"
+          
+          # 【关键修复点】：先在当前用户目录下解压，再用 sudo 移入 root 目录
+          gunzip -c mihomo.gz > mihomo_temp
+          sudo mv mihomo_temp ./option-root/bin/mihomo
           sudo chmod +x ./option-root/bin/mihomo
-          sudo rm -f mihomo.gz
+          rm -f mihomo.gz
           
           echo ">>> 正在制作自定义 option NPK..."
           
