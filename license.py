@@ -50,7 +50,7 @@ def lic_parse_chr(lic: str, public_key: bytes):
     print(f'License valid: {mikro_kcdsa_verify(licVal, nonce_hash+signature, public_key)}')
 
 
-def lic_gen_ros(software_id, private_key: bytes):
+def lic_gen_ros(software_id, private_key: bytes, level_val: int = 22):
     assert (isinstance(private_key, bytes))
     if isinstance(software_id, str):
         software_id = mikro_softwareid_decode(software_id)
@@ -65,7 +65,7 @@ def lic_gen_ros(software_id, private_key: bytes):
     return MIKRO_LICENSE_HEADER + '\n' + lic[:len(lic)//2] + '\n' + lic[len(lic)//2:] + '\n' + MIKRO_LICENSE_FOOTER
 
 
-def lic_gen_chr(system_id, private_key: bytes):
+def lic_gen_chr(system_id, private_key: bytes, level_val: int = 3):
     assert (isinstance(private_key, bytes))
     if isinstance(system_id, str):
         system_id = mikro_systemid_decode(system_id)
