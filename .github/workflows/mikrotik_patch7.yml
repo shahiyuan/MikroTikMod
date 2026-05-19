@@ -176,7 +176,6 @@ jobs:
         run: |
           echo "1. 下载官方 Netinstall 工具..."
           sudo wget -nv -O netinstall.zip "https://download.mikrotik.com/routeros/${VERSION}/netinstall-${VERSION}.zip"
-          sudo wget -nv -O netinstall.tar.gz "https://download.mikrotik.com/routeros/${VERSION}/netinstall-${VERSION}.tar.gz"
 
           echo "2. 解压并补丁 Windows 版本 (netinstall.exe)..."
           sudo unzip -q netinstall.zip
@@ -188,18 +187,10 @@ jobs:
           sudo -E python3 patch_test.py netinstall netinstall.exe
           sudo zip -q netinstall-${VERSION}.zip ./netinstall.exe
 
-          echo "3. 解压并补丁 Linux 版本 (netinstall-cli)..."
-          sudo tar -xzf netinstall.tar.gz
-          if [ ! -f "./netinstall-cli" ]; then
-              echo "错误: 未找到 netinstall-cli，解压可能失败！"
-              exit 1
-          fi
-          # 执行补丁
-          sudo -E python3 patch_test.py netinstall netinstall-cli
-          sudo tar -czf netinstall-${VERSION}.tar.gz ./netinstall-cli
+
 
           echo "4. 清理临时解压文件"
-          sudo rm -f ./netinstall.exe ./netinstall-cli ./netinstall.zip ./netinstall.tar.gz
+          sudo rm -f ./netinstall.exe ./netinstall.zip 
 
       - name: 自动发布到 GitHub Release
         uses: softprops/action-gh-release@v2
