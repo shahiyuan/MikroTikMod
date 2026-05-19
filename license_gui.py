@@ -18,7 +18,7 @@ class KeyGenApp(ctk.CTk):
 
         # --- 标题 ---
         self.title_label = ctk.CTkLabel(
-            self, text="License KeyGen", 
+            self, text="License Key Gen", 
             font=ctk.CTkFont(size=30, weight="bold"), 
             text_color="#4da8da" # 浅蓝色字体
         )
