@@ -1,6 +1,7 @@
 from mikro import *
 
-
+MIKRO_LICENSE_HEADER = '-----BEGIN MIKROTIK SOFTWARE KEY------------'
+MIKRO_LICENSE_FOOTER = '-----END MIKROTIK SOFTWARE KEY--------------'
 
 
 def generate_eddsa_keypair():
@@ -112,8 +113,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     
-    MIKRO_LICENSE_HEADER = '-----BEGIN MIKROTIK SOFTWARE KEY------------'
-    MIKRO_LICENSE_FOOTER = '-----END MIKROTIK SOFTWARE KEY--------------'
+
 
 
 
