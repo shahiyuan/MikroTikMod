@@ -98,7 +98,6 @@ jobs:
           
           sudo mkdir -p ./option-root/bin/
           
-          # 动态抓取最新的 Alpha linux-arm64 版本的直链
           DOWNLOAD_URL=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/tags/Prerelease-Alpha | grep -o 'https://[^"]*mihomo-linux-arm64-alpha-[a-z0-9]*\.gz' | head -n 1)
           
           if [ -z "$DOWNLOAD_URL" ]; then
@@ -110,8 +109,6 @@ jobs:
           
           # 下载压缩包
           wget -O mihomo.gz -nv "$DOWNLOAD_URL"
-          
-          # 【关键修复点】：先在当前用户目录下解压，再用 sudo 移入 root 目录
           gunzip -c mihomo.gz > mihomo_temp
           sudo mv mihomo_temp ./option-root/bin/mihomo
           sudo chmod +x ./option-root/bin/mihomo
@@ -129,7 +126,6 @@ jobs:
               done
           fi
           
-          # 打包时加上 -all-root 确保 ROS 环境下的权限正确
           sudo mksquashfs option-root option.sfs -quiet -comp xz -no-xattrs -b 256k -all-root
 
           TEMPLATE_NPK=$(find ./all_packages-${ARCH} -name "gps-*.npk" | head -n 1)
@@ -162,7 +158,6 @@ jobs:
           # 使用 sudo 确保 pefile 安装到全局/root 环境中，防止后面的 sudo -E python3 找不到模块
           sudo pip install pefile
 
-      # ... 中间省略主包处理步骤 ...
 
       - name: 下载并 Patch Netinstall 工具
         env:
@@ -174,10 +169,10 @@ jobs:
           CUSTOM_NPK_SIGN_PUBLIC_KEY: ${{ secrets.CUSTOM_NPK_SIGN_PUBLIC_KEY }}
           VERSION: ${{ inputs.version }}
         run: |
-          echo "1. 下载官方 Netinstall 工具..."
+          echo "8. 下载官方 Netinstall 工具..."
           sudo wget -nv -O netinstall.zip "https://download.mikrotik.com/routeros/${VERSION}/netinstall-${VERSION}.zip"
 
-          echo "2. 解压并补丁 Windows 版本 (netinstall.exe)..."
+          echo "9. 下载并patch Windows 版本 (netinstall.exe)..."
           sudo unzip -q netinstall.zip
           if [ ! -f "./netinstall.exe" ]; then
               echo "错误: 未找到 netinstall.exe，解压可能失败！"
@@ -187,9 +182,7 @@ jobs:
           sudo -E python3 patch_test.py netinstall netinstall.exe
           sudo zip -q netinstall-${VERSION}.zip ./netinstall.exe
 
-
-
-          echo "4. 清理临时解压文件"
+          echo "10. 清理临时解压文件"
           sudo rm -f ./netinstall.exe ./netinstall.zip 
 
       - name: 自动发布到 GitHub Release
