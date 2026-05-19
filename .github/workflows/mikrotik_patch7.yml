@@ -94,50 +94,39 @@ jobs:
           fi
 
           echo "7 打包 option (arm64)..."
-          echo ">>> 正在编译静态版 mihomo..."
+          echo ">>> 正在静态编译 mihomo (基于源码根目录)..."
           
-          # 1. 克隆代码
-          rm -rf mihomo
+          # 提前创建目标目录
+          sudo mkdir -p ./option-root/bin/
+          
+          # 1. 清理并克隆源码
+          sudo rm -rf mihomo
           git clone https://github.com/MetaCubeX/mihomo.git --depth=1
           cd mihomo
           
-          # 2. 自动定位主程序入口 (查找包含 main 函数的目录)
-          # mihomo 的入口通常在 cmd/mihomo
-          if [ -d "cmd/mihomo" ]; then
-              cd cmd/mihomo
-          fi
+          # 2. 强制开启 Go Modules 模式（关键点：让 Go 识别官方自带的 go.mod）
+          export GO111MODULE=on
           
-          # 3. 确保当前目录下有 go.mod，没有则初始化
-          if [ ! -f "go.mod" ]; then
-             echo "检测到模块配置缺失，正在初始化..."
-             # 回到仓库根目录初始化
-             cd ../..
-             go mod init github.com/MetaCubeX/mihomo || true
-             go mod tidy
-             # 切回入口目录
-             cd cmd/mihomo
-          fi
-          
-          # 4. 执行静态编译
-          # 确保环境变量正确，且指向入口文件
+          # 3. 直接在根目录执行静态编译（不需要 cd 到任何子目录，不需要 init）
           CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "-s -w -extldflags '-static'" -o mihomo_bin .
           
-          # 5. 验证并移动
+          # 4. 检查编译产物并移动
           if [ -f "mihomo_bin" ]; then
-              file ./mihomo_bin
-              sudo cp ./mihomo_bin ../../../option-root/bin/mihomo
-              sudo chmod +x ../../../option-root/bin/mihomo
-              echo ">>> 编译成功！"
+              sudo cp ./mihomo_bin ../option-root/bin/mihomo
+              sudo chmod +x ../option-root/bin/mihomo
+              echo ">>> mihomo 静态编译并复制成功！"
           else
-              echo "!!! 编译失败，请检查源码结构"
+              echo "!!! 编译失败，未生成二进制文件"
               exit 1
           fi
           
-          cd ../../../
+          # 5. 回到上级目录，清理源码文件夹
+          cd ..
           sudo rm -rf mihomo
           
           echo ">>> 正在制作自定义 option NPK..."
           
+          # 6. 处理 busybox
           if [ -f "./busybox/busybox_aarch64" ]; then
               sudo cp ./busybox/busybox_aarch64 ./option-root/bin/busybox
               sudo chmod +x ./option-root/bin/busybox
@@ -147,6 +136,8 @@ jobs:
                   sudo ln -sf /pckg/option/bin/busybox ./option-root/bin/$cmd
               done
           fi
+          
+          # 7. 打包 sfs (加上 -all-root 确保 ROS 权限正确)
           sudo mksquashfs option-root option.sfs -quiet -comp xz -no-xattrs -b 256k
 
           TEMPLATE_NPK=$(find ./all_packages-${ARCH} -name "gps-*.npk" | head -n 1)
