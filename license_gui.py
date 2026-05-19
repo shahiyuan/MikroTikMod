@@ -103,6 +103,7 @@ class KeyGenApp(ctk.CTk):
     def generate_license(self):
         target_id = self.id_entry.get().strip()
         os_type = self.os_combo.get()
+        level_str = self.level_combo.get()  # 获取下拉框选择的等级字符串
 
         if not target_id:
             self.show_message("Please enter a Software/System ID.", "#FF0000")
@@ -115,13 +116,29 @@ class KeyGenApp(ctk.CTk):
         try:
             pk_bytes = bytes.fromhex(PRIVATE_KEY_HEX)
             
-            # 调用 license.py 的函数
-            # 注意: 原 license.py 中的级别是硬编码的，若需要下拉框动态修改级别，
-            # 需要自行去 license.py 的 lic_gen_ros 中把 varb8 和 lic_gen_chr 中的 varb13 改为参数传入。
+            # --- 建立 UI 字符串到十六进制/整数特征值的映射 ---
+            # 提示：根据你的原代码，ROS 的 Level 6 对应 22，CHR 的 P-Unlimited 对应 3。
+            # 如果 Level 5 和 Level 4 对应的真实数值不是 10 和 6，请自行修改下方字典中的数字。
+            ros_level_map = {
+                "Level 6": 22,   
+                "Level 5": 10,   # 请替换为真实数值
+                "Level 4": 6     # 请替换为真实数值
+            }
+            
+            chr_level_map = {
+                "P-Unlimited": 3,
+                "P10": 2,        # 请替换为真实数值
+                "P1": 1          # 请替换为真实数值
+            }
+
             if os_type == "RouterOS":
-                result = license.lic_gen_ros(target_id, pk_bytes)
+                # 获取映射的数值，如果字典里没有，默认给 22
+                level_val = ros_level_map.get(level_str, 22)
+                # 传入 level_val
+                result = license.lic_gen_ros(target_id, pk_bytes, level_val)
             else:
-                result = license.lic_gen_chr(target_id, pk_bytes)
+                level_val = chr_level_map.get(level_str, 3)
+                result = license.lic_gen_chr(target_id, pk_bytes, level_val)
 
             self.show_message(result, "#00FF00")
         except Exception as e:
